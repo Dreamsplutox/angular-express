@@ -1,0 +1,16 @@
+### STAGE 1: Build ###
+FROM node:alpine AS build
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm install --verbose
+COPY . .
+RUN npm run build
+
+### STAGE 2: Run ###
+FROM nginx:alpine
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /usr/src/app/dist/AngularCrud /usr/share/nginx/html
+EXPOSE 80
+
+# Demander au processus du serveur Nginx de rester au premier plan
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

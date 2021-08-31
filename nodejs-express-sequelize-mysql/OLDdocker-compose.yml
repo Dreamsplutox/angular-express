@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+  db:
+    image: "mysql:latest"
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'testdb'
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: 'user'
+      # You can use whatever password you like
+      MYSQL_PASSWORD: 'Azertyuiop91&*'
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: 'Azertyuiop91&*'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '6033:3306'
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root--execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+      # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+  restapi:
+    build: .
+    ports: 
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app/
+      - /usr/src/app/node_modules
+# Names our volume
+volumes:
+  my-db:
+  
